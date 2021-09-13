@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { Component, useEffect, useState } from 'react';
 
 import Header from '../../components/Header';
 import api from '../../services/api';
@@ -7,37 +7,60 @@ import ModalAddFood from '../../components/ModalAddFood';
 import ModalEditFood from '../../components/ModalEditFood';
 import { FoodsContainer } from './styles';
 
-class Dashboard extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      foods: [],
-      editingFood: {},
-      modalOpen: false,
-      editModalOpen: false,
-    }
+interface FoodProps {
+  id: number
+  name: string
+  description: string
+  available: boolean
+  image: string
+}
+
+interface Props {
+  foods: FoodProps[]
+  editingFood: {
+
   }
+  modalOpen: boolean
+  editModalOpen: boolean
+}
 
-  async componentDidMount() {
-    const response = await api.get('/foods');
+export function Dashboard({ foods, editingFood, modalOpen, editModalOpen }: Props) {
+  const [foodsList, setFoodsList] = useState({ foods })
 
-    this.setState({ foods: response.data });
-  }
+  useEffect(() => {
+    const response = api.get('/foods')
+    .then(response => setFoodsList({ foods: response.data }))
+  }, [])
 
-  handleAddFood = async food => {
-    const { foods } = this.state;
-
+  function handleAddFood(food: FoodProps) {
     try {
-      const response = await api.post('/foods', {
+      const response = api.post('/foods', {
         ...food,
-        available: true,
-      });
+        available: true
+      })
 
-      this.setState({ foods: [...foods, response.data] });
+      const newFood = response
+
+      setFoodsList({ foods: [ ...foodsList, newFood] })
     } catch (err) {
-      console.log(err);
+      console.log(err)
     }
   }
+
+  // handleAddFood = async food => {
+  //   const { foods } = this.state;
+
+  //   try {
+  //     const response = await api.post('/foods', {
+  //       ...food,
+  //       available: true,
+  //     });
+
+  //     this.setState({ foods: [...foods, response.data] });
+  //   } catch (err) {
+  //     console.log(err);
+  //   }
+  // }
 
   handleUpdateFood = async food => {
     const { foods, editingFood } = this.state;
@@ -84,9 +107,6 @@ class Dashboard extends Component {
     this.setState({ editingFood: food, editModalOpen: true });
   }
 
-  render() {
-    const { modalOpen, editModalOpen, editingFood, foods } = this.state;
-
     return (
       <>
         <Header openModal={this.toggleModal} />
@@ -116,6 +136,3 @@ class Dashboard extends Component {
       </>
     );
   }
-};
-
-export default Dashboard;

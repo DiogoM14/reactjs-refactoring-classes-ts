@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 
-import Header from '../../components/Header';
-import api from '../../services/api';
+import { Header } from '../../components/Header';
 import { Food } from '../../components/Food';
-import ModalAddFood from '../../components/ModalAddFood';
+import { ModalAddFood } from '../../components/ModalAddFood';
 import { ModalEditFood } from '../../components/ModalEditFood';
+
+import api from '../../services/api';
+
 import { FoodsContainer } from './styles';
 
 interface FoodProps {
@@ -27,35 +29,21 @@ export function Dashboard() {
     .then(response => setFoods(response.data))
   }, [])
 
-  function handleAddFood(food: FoodProps) {
-    // try {
-    //   const response = api.post('/foods', {
-    //     ...food,
-    //     available: true
-    //   })
+  async function handleAddFood(food: FoodProps) {
+    try {
+      const response = await api.post('/foods', {
+        ...food,
+        available: true
+      })
 
-    //   const newFood = response
+      const newFood = response.data
 
-    //   // setFoodsList({ foods: [ ...foodsList, newFood] })
-    // } catch (err) {
-    //   console.log(err)
-    // }
+      setFoods([...foods, newFood])
+
+    } catch (err) {
+      console.log(err)
+    }
   }
-
-  // handleAddFood = async food => {
-  //   const { foods } = this.state;
-
-  //   try {
-  //     const response = await api.post('/foods', {
-  //       ...food,
-  //       available: true,
-  //     });
-
-  //     this.setState({ foods: [...foods, response.data] });
-  //   } catch (err) {
-  //     console.log(err);
-  //   }
-  // }
 
   async function handleUpdateFood(food: FoodProps) {
     try {
